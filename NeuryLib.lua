@@ -1,4 +1,3 @@
--- Neury Library Refactored & Enhanced (C++ Style Architecture)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
@@ -65,40 +64,20 @@ function Library.new(hubName, accentColor)
 	HeaderDivider.BorderSizePixel = 0
 	HeaderDivider.Parent = Header
 
-	-- Window Control Buttons (X and Minimize [-])
-	local CloseBtn = Instance.new("TextButton")
-	CloseBtn.Size = UDim2.new(0, 28, 0, 28)
-	CloseBtn.Position = UDim2.new(1, -36, 0.5, -14)
-	CloseBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-	CloseBtn.AutoButtonColor = false
-	CloseBtn.Text = "×"
-	CloseBtn.TextColor3 = Color3.fromRGB(180, 180, 190)
-	CloseBtn.Font = Enum.Font.GothamBold
-	CloseBtn.TextSize = 16
-	CloseBtn.Parent = Header
+	local ControlsContainer = Instance.new("Frame")
+	ControlsContainer.Name = "ControlsContainer"
+	ControlsContainer.Size = UDim2.new(0, 70, 0, 28)
+	ControlsContainer.Position = UDim2.new(1, -82, 0.5, -14)
+	ControlsContainer.BackgroundTransparency = 1
+	ControlsContainer.Parent = Header
 
-	local CloseCorner = Instance.new("UICorner")
-	CloseCorner.CornerRadius = UDim.new(0, 6)
-	CloseCorner.Parent = CloseBtn
-
-	CloseBtn.MouseButton1Click:Connect(function()
-		ScreenGui:Destroy()
-	end)
-
-	local MinBtn = Instance.new("TextButton")
-	MinBtn.Size = UDim2.new(0, 28, 0, 28)
-	MinBtn.Position = UDim2.new(1, -70, 0.5, -14)
-	MinBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-	MinBtn.AutoButtonColor = false
-	MinBtn.Text = "-"
-	MinBtn.TextColor3 = Color3.fromRGB(180, 180, 190)
-	MinBtn.Font = Enum.Font.GothamBold
-	MinBtn.TextSize = 16
-	MinBtn.Parent = Header
-
-	local MinCorner = Instance.new("UICorner")
-	MinCorner.CornerRadius = UDim.new(0, 6)
-	MinCorner.Parent = MinBtn
+	local ControlsLayout = Instance.new("UIListLayout")
+	ControlsLayout.FillDirection = Enum.FillDirection.Horizontal
+	ControlsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	ControlsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	ControlsLayout.Padding = UDim.new(0, 8)
+	ControlsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	ControlsLayout.Parent = ControlsContainer
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Name = "Sidebar"
@@ -170,17 +149,54 @@ function Library.new(hubName, accentColor)
 	self.Pages = {}
 	self.TabCount = 0
 
-	-- Minimize Functionality
-	MinBtn.MouseButton1Click:Connect(function()
-		self.IsMinimized = not self.IsMinimized
-		local targetSize = self.IsMinimized and UDim2.new(0, 580, 0, 50) or UDim2.new(0, 580, 0, 460)
-		Sidebar.Visible = not self.IsMinimized
-		SidebarDivider.Visible = not self.IsMinimized
-		PagesContainer.Visible = not self.IsMinimized
-		TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = targetSize}):Play()
+	local MinButton = Instance.new("TextButton")
+	MinButton.Size = UDim2.new(0, 28, 0, 28)
+	MinButton.BackgroundTransparency = 1
+	MinButton.AutoButtonColor = false
+	MinButton.Font = Enum.Font.GothamBold
+	MinButton.Text = "-"
+	MinButton.TextColor3 = Color3.fromRGB(160, 160, 170)
+	MinButton.TextSize = 20
+	MinButton.LayoutOrder = 1
+	MinButton.Parent = ControlsContainer
+
+	local CloseButton = Instance.new("ImageButton")
+	CloseButton.Size = UDim2.new(0, 22, 0, 22)
+	CloseButton.BackgroundTransparency = 1
+	CloseButton.AutoButtonColor = false
+	CloseButton.Image = "rbxassetid://18503481771"
+	CloseButton.ImageColor3 = Color3.fromRGB(160, 160, 170)
+	CloseButton.LayoutOrder = 2
+	CloseButton.Parent = ControlsContainer
+
+	local minimized = false
+	MinButton.MouseButton1Click:Connect(function()
+		minimized = not minimized
+		self.IsMinimized = minimized
+		local targetSize = minimized and UDim2.new(0, 580, 0, 50) or UDim2.new(0, 580, 0, 460)
+		PagesContainer.Visible = not minimized
+		Sidebar.Visible = not minimized
+		SidebarDivider.Visible = not minimized
+		HeaderDivider.Visible = not minimized
+		TweenService:Create(MainFrame, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = targetSize}):Play()
 	end)
 
-	-- Draggable functionality
+	local isClosing = false
+	CloseButton.MouseButton1Click:Connect(function()
+		if isClosing then return end
+		isClosing = true
+		local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		local shrinkTween = TweenService:Create(MainFrame, tweenInfo, {
+			Size = UDim2.new(0, 0, 0, 0),
+			Position = MainFrame.Position + UDim2.new(0, MainFrame.AbsoluteSize.X / 2, 0, MainFrame.AbsoluteSize.Y / 2)
+		})
+		
+		shrinkTween:Play()
+		shrinkTween.Completed:Connect(function()
+			ScreenGui:Destroy()
+		end)
+	end)
+
 	local draggingMain, dragStart, startPos
 	MainFrame.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -629,7 +645,6 @@ function Library:AddTab(name, imageId)
 		end)
 	end
 
-	-- Added Feature: AddTextboxToggle (Composite UI Element: Button appearance at top, vertical offset, TextBox, then Toggle underneath)
 	function TabObj:AddTextboxToggle(config)
 		local name = config.Name or "Configure Control"
 		local textBoxText = config.TextBoxText or ""
@@ -647,7 +662,6 @@ function Library:AddTab(name, imageId)
 		CompCorner.CornerRadius = UDim.new(0, 6)
 		CompCorner.Parent = MainCompFrame
 
-		-- Top Label (Button Styled Header)
 		local TopLabel = Instance.new("TextLabel")
 		TopLabel.Size = UDim2.new(1, -24, 0, 24)
 		TopLabel.Position = UDim2.new(0, 12, 0, 8)
@@ -659,7 +673,6 @@ function Library:AddTab(name, imageId)
 		TopLabel.TextXAlignment = Enum.TextXAlignment.Left
 		TopLabel.Parent = MainCompFrame
 
-		-- Middle Textbox (Spaced down)
 		local TextBoxContainer = Instance.new("Frame")
 		TextBoxContainer.Size = UDim2.new(1, -24, 0, 24)
 		TextBoxContainer.Position = UDim2.new(0, 12, 0, 36)
@@ -687,7 +700,6 @@ function Library:AddTab(name, imageId)
 			if onTextBoxChanged then onTextBoxChanged(TextBox.Text, enterPressed) end
 		end)
 
-		-- Bottom Toggle Component
 		local ToggleContainer = Instance.new("Frame")
 		ToggleContainer.Size = UDim2.new(1, -24, 0, 24)
 		ToggleContainer.Position = UDim2.new(0, 12, 0, 64)
