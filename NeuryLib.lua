@@ -1,6 +1,45 @@
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+
+local OWNER_IDS = {
+	5641678614,
+}
+local TESTER_ID = {
+	7900997577,
+	5775360001,
+}
+
+local function IsOwner(userId)
+	for _, id in ipairs(OWNER_IDS) do
+		if id == userId then
+			return true
+		end
+	end
+	return false
+end
+
+local function IsTester(userId)
+	for _, id in ipairs(TESTER_ID) do
+		if id == userId then
+			return true
+		end
+	end
+	return false
+end
+
+local function GetRoleText(userId)
+	if IsOwner(userId) then
+		return "Owner"
+	elseif IsTester(userId) then
+		return "Tester"
+	else
+		return "Member"
+	end
+end
 
 local Library = {}
 Library.__index = Library
@@ -148,6 +187,60 @@ function Library.new(hubName, accentColor)
 	self.Tabs = {}
 	self.Pages = {}
 	self.TabCount = 0
+
+	local ProfileContainer = Instance.new("Frame")
+	ProfileContainer.Size = UDim2.new(1, -16, 0, 40)
+	ProfileContainer.Position = UDim2.new(0, 8, 1, -50)
+	ProfileContainer.BackgroundTransparency = 1
+	ProfileContainer.Parent = Sidebar
+
+	local AvatarThumb = Instance.new("ImageLabel")
+	AvatarThumb.Size = UDim2.new(0, 28, 0, 28)
+	AvatarThumb.Position = UDim2.new(0, 0, 0.5, -14)
+	AvatarThumb.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+	AvatarThumb.Image = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150"
+	AvatarThumb.Parent = ProfileContainer
+
+	local AvatarCorner = Instance.new("UICorner")
+	AvatarCorner.CornerRadius = UDim.new(1, 0)
+	AvatarCorner.Parent = AvatarThumb
+
+	local ProfileTextHolder = Instance.new("Frame")
+	ProfileTextHolder.Size = UDim2.new(1, -36, 1, 0)
+	ProfileTextHolder.Position = UDim2.new(0, 36, 0, 0)
+	ProfileTextHolder.BackgroundTransparency = 1
+	ProfileTextHolder.Parent = ProfileContainer
+
+	local ProfileTextLayout = Instance.new("UIListLayout")
+	ProfileTextLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	ProfileTextLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	ProfileTextLayout.Padding = UDim.new(0, 1)
+	ProfileTextLayout.Parent = ProfileTextHolder
+
+	local RoleLabel = Instance.new("TextLabel")
+	RoleLabel.Size = UDim2.new(1, 0, 0, 13)
+	RoleLabel.BackgroundTransparency = 1
+	RoleLabel.Font = Enum.Font.GothamBold
+	RoleLabel.Text = GetRoleText(LocalPlayer.UserId)
+	RoleLabel.TextColor3 = Color3.fromRGB(120, 120, 130)
+	RoleLabel.TextSize = 10
+	RoleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	RoleLabel.LayoutOrder = 1
+	RoleLabel.Parent = ProfileTextHolder
+
+	local UsernameLabel = Instance.new("TextLabel")
+	UsernameLabel.Size = UDim2.new(1, 0, 0, 15)
+	UsernameLabel.BackgroundTransparency = 1
+	UsernameLabel.Font = Enum.Font.GothamBold
+	UsernameLabel.Text = LocalPlayer.Name
+	UsernameLabel.TextColor3 = Color3.fromRGB(225, 225, 230)
+	UsernameLabel.TextSize = 11
+	UsernameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	UsernameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	UsernameLabel.LayoutOrder = 2
+	UsernameLabel.Parent = ProfileTextHolder
+
+	self.ProfileContainer = ProfileContainer
 
 	local MinButton = Instance.new("TextButton")
 	MinButton.Size = UDim2.new(0, 28, 0, 28)
