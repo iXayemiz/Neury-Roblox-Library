@@ -1,4 +1,4 @@
--- Neury Library Extracted & Refactored UI Library (Updated with Dropdown)
+-- Neury Library Refactored & Enhanced (C++ Style Architecture)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
@@ -8,7 +8,8 @@ Library.__index = Library
 
 function Library.new(hubName, accentColor)
 	local self = setmetatable({}, Library)
-	self.AccentColor = accentColor or Color3.fromRGB(0, 0, 255)
+	self.AccentColor = accentColor or Color3.fromRGB(0, 120, 255)
+	self.IsMinimized = false
 	
 	if CoreGui:FindFirstChild("NeuryLibraryUI") then
 		CoreGui.NeuryLibraryUI:Destroy()
@@ -27,7 +28,7 @@ function Library.new(hubName, accentColor)
 	MainFrame.Position = UDim2.new(0.5, -290, 0.5, -230)
 	MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
 	MainFrame.BorderSizePixel = 0
-	MainFrame.ClipsDescendants = false -- Changed to false so dropdowns can overflow if needed, or handle inside container
+	MainFrame.ClipsDescendants = false
 	MainFrame.Parent = ScreenGui
 	self.MainFrame = MainFrame
 
@@ -35,18 +36,24 @@ function Library.new(hubName, accentColor)
 	MainCorner.CornerRadius = UDim.new(0, 16)
 	MainCorner.Parent = MainFrame
 
+	local MainStroke = Instance.new("UIStroke")
+	MainStroke.Color = Color3.fromRGB(30, 30, 40)
+	MainStroke.Thickness = 1
+	MainStroke.Parent = MainFrame
+
 	local Header = Instance.new("Frame")
+	Header.Name = "Header"
 	Header.Size = UDim2.new(1, 0, 0, 50)
 	Header.BackgroundTransparency = 1
 	Header.Parent = MainFrame
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 400, 1, 0)
+	TitleLabel.Size = UDim2.new(0, 350, 1, 0)
 	TitleLabel.Position = UDim2.new(0, 16, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.Text = hubName or "Neury | Library"
-	TitleLabel.TextColor3 = Color3.fromRGB(200, 200, 205)
+	TitleLabel.Text = hubName or "Neury | Core System"
+	TitleLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
 	TitleLabel.TextSize = 13
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	TitleLabel.Parent = Header
@@ -57,6 +64,41 @@ function Library.new(hubName, accentColor)
 	HeaderDivider.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	HeaderDivider.BorderSizePixel = 0
 	HeaderDivider.Parent = Header
+
+	-- Window Control Buttons (X and Minimize [-])
+	local CloseBtn = Instance.new("TextButton")
+	CloseBtn.Size = UDim2.new(0, 28, 0, 28)
+	CloseBtn.Position = UDim2.new(1, -36, 0.5, -14)
+	CloseBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	CloseBtn.AutoButtonColor = false
+	CloseBtn.Text = "×"
+	CloseBtn.TextColor3 = Color3.fromRGB(180, 180, 190)
+	CloseBtn.Font = Enum.Font.GothamBold
+	CloseBtn.TextSize = 16
+	CloseBtn.Parent = Header
+
+	local CloseCorner = Instance.new("UICorner")
+	CloseCorner.CornerRadius = UDim.new(0, 6)
+	CloseCorner.Parent = CloseBtn
+
+	CloseBtn.MouseButton1Click:Connect(function()
+		ScreenGui:Destroy()
+	end)
+
+	local MinBtn = Instance.new("TextButton")
+	MinBtn.Size = UDim2.new(0, 28, 0, 28)
+	MinBtn.Position = UDim2.new(1, -70, 0.5, -14)
+	MinBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	MinBtn.AutoButtonColor = false
+	MinBtn.Text = "-"
+	MinBtn.TextColor3 = Color3.fromRGB(180, 180, 190)
+	MinBtn.Font = Enum.Font.GothamBold
+	MinBtn.TextSize = 16
+	MinBtn.Parent = Header
+
+	local MinCorner = Instance.new("UICorner")
+	MinCorner.CornerRadius = UDim.new(0, 6)
+	MinCorner.Parent = MinBtn
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Name = "Sidebar"
@@ -127,6 +169,16 @@ function Library.new(hubName, accentColor)
 	self.Tabs = {}
 	self.Pages = {}
 	self.TabCount = 0
+
+	-- Minimize Functionality
+	MinBtn.MouseButton1Click:Connect(function()
+		self.IsMinimized = not self.IsMinimized
+		local targetSize = self.IsMinimized and UDim2.new(0, 580, 0, 50) or UDim2.new(0, 580, 0, 460)
+		Sidebar.Visible = not self.IsMinimized
+		SidebarDivider.Visible = not self.IsMinimized
+		PagesContainer.Visible = not self.IsMinimized
+		TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = targetSize}):Play()
+	end)
 
 	-- Draggable functionality
 	local draggingMain, dragStart, startPos
@@ -574,6 +626,121 @@ function Library:AddTab(name, imageId)
 			DropdownOpen = not DropdownOpen
 			local targetSize = DropdownOpen and UDim2.new(1, -10, 0, calcHeight) or UDim2.new(1, -10, 0, 38)
 			TweenService:Create(DropdownFrame, TweenInfo.new(0.2), {Size = targetSize}):Play()
+		end)
+	end
+
+	-- Added Feature: AddTextboxToggle (Composite UI Element: Button appearance at top, vertical offset, TextBox, then Toggle underneath)
+	function TabObj:AddTextboxToggle(config)
+		local name = config.Name or "Configure Control"
+		local textBoxText = config.TextBoxText or ""
+		local placeholder = config.Placeholder or "Enter value..."
+		local defaultToggle = config.DefaultState or false
+		local onTextBoxChanged = config.OnTextBoxChanged
+		local onToggleChanged = config.OnToggleChanged
+
+		local MainCompFrame = Instance.new("Frame")
+		MainCompFrame.Size = UDim2.new(1, -10, 0, 94)
+		MainCompFrame.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
+		MainCompFrame.Parent = Page
+
+		local CompCorner = Instance.new("UICorner")
+		CompCorner.CornerRadius = UDim.new(0, 6)
+		CompCorner.Parent = MainCompFrame
+
+		-- Top Label (Button Styled Header)
+		local TopLabel = Instance.new("TextLabel")
+		TopLabel.Size = UDim2.new(1, -24, 0, 24)
+		TopLabel.Position = UDim2.new(0, 12, 0, 8)
+		TopLabel.BackgroundTransparency = 1
+		TopLabel.Font = Enum.Font.GothamBold
+		TopLabel.Text = name
+		TopLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
+		TopLabel.TextSize = 12
+		TopLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TopLabel.Parent = MainCompFrame
+
+		-- Middle Textbox (Spaced down)
+		local TextBoxContainer = Instance.new("Frame")
+		TextBoxContainer.Size = UDim2.new(1, -24, 0, 24)
+		TextBoxContainer.Position = UDim2.new(0, 12, 0, 36)
+		TextBoxContainer.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
+		TextBoxContainer.Parent = MainCompFrame
+
+		local TBContainerCorner = Instance.new("UICorner")
+		TBContainerCorner.CornerRadius = UDim.new(0, 4)
+		TBContainerCorner.Parent = TextBoxContainer
+
+		local TextBox = Instance.new("TextBox")
+		TextBox.Size = UDim2.new(1, -10, 1, 0)
+		TextBox.Position = UDim2.new(0, 5, 0, 0)
+		TextBox.BackgroundTransparency = 1
+		TextBox.Font = Enum.Font.GothamMedium
+		TextBox.PlaceholderText = placeholder
+		TextBox.Text = textBoxText
+		TextBox.TextColor3 = Color3.fromRGB(200, 200, 210)
+		TextBox.TextSize = 10
+		TextBox.ClearTextOnFocus = false
+		TextBox.TextXAlignment = Enum.TextXAlignment.Left
+		TextBox.Parent = TextBoxContainer
+
+		TextBox.FocusLost:Connect(function(enterPressed)
+			if onTextBoxChanged then onTextBoxChanged(TextBox.Text, enterPressed) end
+		end)
+
+		-- Bottom Toggle Component
+		local ToggleContainer = Instance.new("Frame")
+		ToggleContainer.Size = UDim2.new(1, -24, 0, 24)
+		ToggleContainer.Position = UDim2.new(0, 12, 0, 64)
+		ToggleContainer.BackgroundTransparency = 1
+		ToggleContainer.Parent = MainCompFrame
+
+		local ToggleStatusLabel = Instance.new("TextLabel")
+		ToggleStatusLabel.Size = UDim2.new(1, -50, 1, 0)
+		ToggleStatusLabel.BackgroundTransparency = 1
+		ToggleStatusLabel.Font = Enum.Font.GothamMedium
+		ToggleStatusLabel.Text = "Active Status"
+		ToggleStatusLabel.TextColor3 = Color3.fromRGB(150, 150, 160)
+		ToggleStatusLabel.TextSize = 11
+		ToggleStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+		ToggleStatusLabel.Parent = ToggleContainer
+
+		local Pill = Instance.new("TextButton")
+		Pill.Size = UDim2.new(0, 36, 0, 18)
+		Pill.Position = UDim2.new(1, -36, 0.5, -9)
+		Pill.BackgroundColor3 = defaultToggle and libraryRef.AccentColor or Color3.fromRGB(12, 12, 14)
+		Pill.AutoButtonColor = false
+		Pill.Text = ""
+		Pill.Parent = ToggleContainer
+
+		local PillCorner = Instance.new("UICorner")
+		PillCorner.CornerRadius = UDim.new(1, 0)
+		PillCorner.Parent = Pill
+
+		local PillStroke = Instance.new("UIStroke")
+		PillStroke.Color = Color3.fromRGB(255, 255, 255)
+		PillStroke.Thickness = 1
+		PillStroke.Parent = Pill
+
+		local Circle = Instance.new("Frame")
+		Circle.Size = UDim2.new(0, 12, 0, 12)
+		Circle.Position = defaultToggle and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
+		Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Circle.Parent = Pill
+
+		local CircleCorner = Instance.new("UICorner")
+		CircleCorner.CornerRadius = UDim.new(1, 0)
+		CircleCorner.Parent = Circle
+
+		local toggled = defaultToggle
+		Pill.MouseButton1Click:Connect(function()
+			toggled = not toggled
+			local targetBg = toggled and libraryRef.AccentColor or Color3.fromRGB(12, 12, 14)
+			local targetPos = toggled and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
+
+			TweenService:Create(Pill, TweenInfo.new(0.15), {BackgroundColor3 = targetBg}):Play()
+			TweenService:Create(Circle, TweenInfo.new(0.15), {Position = targetPos}):Play()
+
+			if onToggleChanged then onToggleChanged(toggled) end
 		end)
 	end
 
