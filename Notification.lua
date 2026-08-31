@@ -1,6 +1,6 @@
---[
-  Listen i got lazy so i just decided to make a seperate script, anyway link it if you want to.
---]
+--[[
+  	Listen i got lazy so i just decided to make a seperate script, anyway link it if you want to.
+--]]
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
