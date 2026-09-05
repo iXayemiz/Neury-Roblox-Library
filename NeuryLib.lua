@@ -143,7 +143,7 @@ function Library.new(hubName, accentColor)
 
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Size = UDim2.new(0, 1, 1, -55)
-	SidebarDivider.Position = UDim2.new(0, 150, 0, 55)
+	SidebarDivider.Position = UDim2.new(0, 197, 0, 55)
 	SidebarDivider.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	SidebarDivider.BorderSizePixel = 0
 	SidebarDivider.Parent = MainFrame
@@ -286,9 +286,6 @@ function Library.new(hubName, accentColor)
 	CloseButton.LayoutOrder = 2
 	CloseButton.Parent = ControlsContainer
 
-	-- ============================================================
-	-- Resize handle (bottom-right corner grip, like a Windows window)
-	-- ============================================================
 	local MIN_WIDTH, MIN_HEIGHT = 500, 380
 	local MAX_WIDTH, MAX_HEIGHT = 1100, 850
 
