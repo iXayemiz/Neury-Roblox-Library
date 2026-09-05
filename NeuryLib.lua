@@ -105,7 +105,7 @@ function Library.new(hubName, accentColor)
 	TitleLabel.Position = UDim2.new(0, 18, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.Text = hubName or "Neury | Core System"
+	TitleLabel.Text = hubName or "Neury UI Showcase"
 	TitleLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
 	TitleLabel.TextSize = 14
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -143,7 +143,7 @@ function Library.new(hubName, accentColor)
 
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Size = UDim2.new(0, 1, 1, -55)
-	SidebarDivider.Position = UDim2.new(0, 195, 0, 55)
+	SidebarDivider.Position = UDim2.new(0, 205, 0, 55)
 	SidebarDivider.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	SidebarDivider.BorderSizePixel = 0
 	SidebarDivider.Parent = MainFrame
