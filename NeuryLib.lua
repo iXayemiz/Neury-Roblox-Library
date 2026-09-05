@@ -135,7 +135,7 @@ function Library.new(hubName, accentColor)
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Name = "Sidebar"
-	Sidebar.Size = UDim2.new(0, 195, 1, -55)
+	Sidebar.Size = UDim2.new(0, 205, 1, -55)
 	Sidebar.Position = UDim2.new(0, 0, 0, 55)
 	Sidebar.BackgroundTransparency = 1
 	Sidebar.Parent = MainFrame
