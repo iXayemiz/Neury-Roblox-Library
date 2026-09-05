@@ -143,7 +143,7 @@ function Library.new(hubName, accentColor)
 
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Size = UDim2.new(0, 1, 1, -55)
-	SidebarDivider.Position = UDim2.new(0, 195, 0, 55)
+	SidebarDivider.Position = UDim2.new(0, 205, 0, 55)
 	SidebarDivider.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	SidebarDivider.BorderSizePixel = 0
 	SidebarDivider.Parent = MainFrame
