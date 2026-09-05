@@ -219,8 +219,8 @@ function Library.new(hubName, accentColor)
 	ProfileContainer.Parent = Sidebar
 
 	local AvatarThumb = Instance.new("ImageLabel")
-	AvatarThumb.Size = UDim2.new(0, 32, 0, 32)
-	AvatarThumb.Position = UDim2.new(0, 0, 0.5, -16)
+	AvatarThumb.Size = UDim2.new(0, 38, 0, 38)
+	AvatarThumb.Position = UDim2.new(0, 0, 0.5, -18)
 	AvatarThumb.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	AvatarThumb.Image = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150"
 	AvatarThumb.Parent = ProfileContainer
@@ -286,9 +286,6 @@ function Library.new(hubName, accentColor)
 	CloseButton.LayoutOrder = 2
 	CloseButton.Parent = ControlsContainer
 
-	-- ============================================================
-	-- Resize handle (bottom-right corner grip, like a Windows window)
-	-- ============================================================
 	local MIN_WIDTH, MIN_HEIGHT = 500, 380
 	local MAX_WIDTH, MAX_HEIGHT = 1100, 850
 
@@ -1160,9 +1157,6 @@ function Library:AddTab(name, imageId)
 		return Frame
 	end
 
-	-- ============================================================
-	-- Real HSV Color Picker (hue strip + saturation/value box)
-	-- ============================================================
 	function TabObj:AddColorPicker(text, defaultColor, callback)
 		defaultColor = defaultColor or libraryRef.AccentColor
 
