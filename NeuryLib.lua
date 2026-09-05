@@ -220,7 +220,7 @@ function Library.new(hubName, accentColor)
 
 	local AvatarThumb = Instance.new("ImageLabel")
 	AvatarThumb.Size = UDim2.new(0, 38, 0, 38)
-	AvatarThumb.Position = UDim2.new(0, 0, 0.5, -18)
+	AvatarThumb.Position = UDim2.new(0, 0, 0.5, -20)
 	AvatarThumb.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	AvatarThumb.Image = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150"
 	AvatarThumb.Parent = ProfileContainer
