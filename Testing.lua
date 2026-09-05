@@ -1,6 +1,4 @@
-local NeuryUI = loadstring(game:HttpGet(
-	"https://raw.githubusercontent.com/iXayemiz/Neury-Roblox-Library/refs/heads/main/NeuryLib.lua"
-))()
+local NeuryUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/iXayemiz/Neury-Roblox-Library/refs/heads/main/NeuryLib.lua"))()
 
 local NeuryWindow = NeuryUI.new(
 	"Neury UI Testing",
