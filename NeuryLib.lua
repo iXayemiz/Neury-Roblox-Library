@@ -135,7 +135,7 @@ function Library.new(hubName, accentColor)
 
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Name = "Sidebar"
-	Sidebar.Size = UDim2.new(0, 165, 1, -55)
+	Sidebar.Size = UDim2.new(0, 195, 1, -55)
 	Sidebar.Position = UDim2.new(0, 0, 0, 55)
 	Sidebar.BackgroundTransparency = 1
 	Sidebar.Parent = MainFrame
@@ -143,7 +143,7 @@ function Library.new(hubName, accentColor)
 
 	local SidebarDivider = Instance.new("Frame")
 	SidebarDivider.Size = UDim2.new(0, 1, 1, -55)
-	SidebarDivider.Position = UDim2.new(0, 165, 0, 55)
+	SidebarDivider.Position = UDim2.new(0, 195, 0, 55)
 	SidebarDivider.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	SidebarDivider.BorderSizePixel = 0
 	SidebarDivider.Parent = MainFrame
@@ -193,8 +193,8 @@ function Library.new(hubName, accentColor)
 	self.SidebarItemsContainer = SidebarItemsContainer
 
 	local PagesContainer = Instance.new("Frame")
-	PagesContainer.Size = UDim2.new(1, -177, 1, -68)
-	PagesContainer.Position = UDim2.new(0, 177, 0, 62)
+	PagesContainer.Size = UDim2.new(1, -207, 1, -68)
+	PagesContainer.Position = UDim2.new(0, 207, 0, 62)
 	PagesContainer.BackgroundTransparency = 1
 	PagesContainer.ClipsDescendants = true
 	PagesContainer.Parent = MainFrame
@@ -203,6 +203,14 @@ function Library.new(hubName, accentColor)
 	self.Tabs = {}
 	self.Pages = {}
 	self.TabCount = 0
+
+	local ProfileDivider = Instance.new("Frame")
+	ProfileDivider.Name = "ProfileDivider"
+	ProfileDivider.Size = UDim2.new(1, 0, 0, 1)
+	ProfileDivider.Position = UDim2.new(0, 0, 1, -54)
+	ProfileDivider.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+	ProfileDivider.BorderSizePixel = 0
+	ProfileDivider.Parent = Sidebar
 
 	local ProfileContainer = Instance.new("Frame")
 	ProfileContainer.Size = UDim2.new(1, -18, 0, 44)
@@ -278,6 +286,9 @@ function Library.new(hubName, accentColor)
 	CloseButton.LayoutOrder = 2
 	CloseButton.Parent = ControlsContainer
 
+	-- ============================================================
+	-- Resize handle (bottom-right corner grip, like a Windows window)
+	-- ============================================================
 	local MIN_WIDTH, MIN_HEIGHT = 500, 380
 	local MAX_WIDTH, MAX_HEIGHT = 1100, 850
 
@@ -1149,6 +1160,9 @@ function Library:AddTab(name, imageId)
 		return Frame
 	end
 
+	-- ============================================================
+	-- Real HSV Color Picker (hue strip + saturation/value box)
+	-- ============================================================
 	function TabObj:AddColorPicker(text, defaultColor, callback)
 		defaultColor = defaultColor or libraryRef.AccentColor
 
@@ -1273,6 +1287,7 @@ function Library:AddTab(name, imageId)
 		SVCursorStroke.Thickness = 1.5
 		SVCursorStroke.Parent = SVCursor
 
+		-- Hue strip
 		local HueStrip = Instance.new("Frame")
 		HueStrip.Size = UDim2.new(1, 0, 0, 16)
 		HueStrip.Position = UDim2.new(0, 0, 0, 130 + 10)
@@ -1314,6 +1329,7 @@ function Library:AddTab(name, imageId)
 		HueCursorStroke.Thickness = 1
 		HueCursorStroke.Parent = HueCursor
 
+		-- Preview + hex row
 		local PreviewRow = Instance.new("Frame")
 		PreviewRow.Size = UDim2.new(1, 0, 0, 22)
 		PreviewRow.Position = UDim2.new(0, 0, 0, 130 + 10 + 16 + 10)
