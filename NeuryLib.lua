@@ -219,8 +219,8 @@ function Library.new(hubName, accentColor)
 	ProfileContainer.Parent = Sidebar
 
 	local AvatarThumb = Instance.new("ImageLabel")
-	AvatarThumb.Size = UDim2.new(0, 38, 0, 38)
-	AvatarThumb.Position = UDim2.new(0, 0, 0.5, -20)
+	AvatarThumb.Size = UDim2.new(0, 32, 0, 32)
+	AvatarThumb.Position = UDim2.new(0, 0, 0.5, -16)
 	AvatarThumb.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 	AvatarThumb.Image = "rbxthumb://type=AvatarHeadShot&id=" .. LocalPlayer.UserId .. "&w=150&h=150"
 	AvatarThumb.Parent = ProfileContainer
@@ -286,6 +286,9 @@ function Library.new(hubName, accentColor)
 	CloseButton.LayoutOrder = 2
 	CloseButton.Parent = ControlsContainer
 
+	-- ============================================================
+	-- Resize handle (bottom-right corner grip, like a Windows window)
+	-- ============================================================
 	local MIN_WIDTH, MIN_HEIGHT = 500, 380
 	local MAX_WIDTH, MAX_HEIGHT = 1100, 850
 
@@ -1157,6 +1160,9 @@ function Library:AddTab(name, imageId)
 		return Frame
 	end
 
+	-- ============================================================
+	-- Real HSV Color Picker (hue strip + saturation/value box)
+	-- ============================================================
 	function TabObj:AddColorPicker(text, defaultColor, callback)
 		defaultColor = defaultColor or libraryRef.AccentColor
 
@@ -1188,6 +1194,7 @@ function Library:AddTab(name, imageId)
 		Label.ZIndex = 6
 		Label.Parent = Frame
 
+		-- swatch button in the row (click to expand/collapse)
 		local SwatchButton = Instance.new("TextButton")
 		SwatchButton.Size = UDim2.new(0, 38, 0, 26)
 		SwatchButton.Position = UDim2.new(1, -51, 0, 8)
@@ -1206,6 +1213,7 @@ function Library:AddTab(name, imageId)
 		SwatchStroke.Transparency = 0.4
 		SwatchStroke.Parent = SwatchButton
 
+		-- ===== Expanded picker body =====
 		local Body = Instance.new("Frame")
 		Body.Size = UDim2.new(1, -26, 0, expandedHeight - 42)
 		Body.Position = UDim2.new(0, 13, 0, 42)
@@ -1213,6 +1221,7 @@ function Library:AddTab(name, imageId)
 		Body.ZIndex = 6
 		Body.Parent = Frame
 
+		-- SV box
 		local SVBox = Instance.new("Frame")
 		SVBox.Size = UDim2.new(1, 0, 0, 130)
 		SVBox.Position = UDim2.new(0, 0, 0, 8)
