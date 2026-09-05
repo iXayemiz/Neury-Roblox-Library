@@ -1,3 +1,16 @@
+--[[
+	    _   __                         __  ______   __    _ __                         
+	   / | / /__  __  _________  __   / / / /  _/  / /   (_) /_  _________ ________  __
+	  /  |/ / _ \/ / / / ___/ / / /  / / / // /   / /   / / __ \/ ___/ __ `/ ___/ / / /
+	 / /|  /  __/ /_/ / /  / /_/ /  / /_/ // /   / /___/ / /_/ / /  / /_/ / /  / /_/ / 
+	/_/ |_/\___/\__,_/_/   \__, /   \____/___/  /_____/_/_.___/_/   \__,_/_/   \__, /  
+    	                  /____/                                              /____/   
+	
+	Made by iXayemiz
+	Discord Username: 9amhd
+	You can message me if you want to ask something or want me to make you a hub
+--]]
+
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
@@ -265,20 +278,57 @@ function Library.new(hubName, accentColor)
 	CloseButton.LayoutOrder = 2
 	CloseButton.Parent = ControlsContainer
 
+	local MIN_WIDTH, MIN_HEIGHT = 500, 380
+	local MAX_WIDTH, MAX_HEIGHT = 1100, 850
+
+	local ResizeHandle = Instance.new("TextButton")
+	ResizeHandle.Name = "ResizeHandle"
+	ResizeHandle.Size = UDim2.new(0, 20, 0, 20)
+	ResizeHandle.Position = UDim2.new(1, -20, 1, -20)
+	ResizeHandle.BackgroundTransparency = 1
+	ResizeHandle.AutoButtonColor = false
+	ResizeHandle.Text = ""
+	ResizeHandle.ZIndex = 10
+	ResizeHandle.Parent = MainFrame
+
+	local gripDotPositions = {
+		{15, 5}, {15, 11}, {15, 17},
+		{9, 11}, {9, 17},
+		{3, 17},
+	}
+
+	for _, dotPos in ipairs(gripDotPositions) do
+		local Dot = Instance.new("Frame")
+		Dot.Size = UDim2.new(0, 2, 0, 2)
+		Dot.Position = UDim2.new(0, dotPos[1], 0, dotPos[2])
+		Dot.BackgroundColor3 = Color3.fromRGB(90, 90, 100)
+		Dot.BorderSizePixel = 0
+		Dot.ZIndex = 10
+		Dot.Parent = ResizeHandle
+	end
+
 	local minimized = false
+	local lastExpandedHeight = MainFrame.Size.Y.Offset
 
 	MinButton.MouseButton1Click:Connect(function()
 		minimized = not minimized
 		self.IsMinimized = minimized
 
+		if minimized then
+			lastExpandedHeight = MainFrame.Size.Y.Offset
+		end
+
+		local currentWidth = MainFrame.Size.X.Offset
+
 		local targetSize = minimized
-			and UDim2.new(0, 760, 0, 54)
-			or UDim2.new(0, 760, 0, 600)
+			and UDim2.new(0, currentWidth, 0, 54)
+			or UDim2.new(0, currentWidth, 0, lastExpandedHeight)
 
 		PagesContainer.Visible = not minimized
 		Sidebar.Visible = not minimized
 		SidebarDivider.Visible = not minimized
 		HeaderDivider.Visible = not minimized
+		ResizeHandle.Visible = not minimized
 
 		TweenService:Create(
 			MainFrame,
@@ -355,6 +405,56 @@ function Library.new(hubName, accentColor)
 				startPos.Y.Scale,
 				startPos.Y.Offset + delta.Y
 			)
+		end
+	end)
+
+	local resizing = false
+	local resizeStart
+	local resizeStartSize
+
+	ResizeHandle.InputBegan:Connect(function(input)
+		if minimized then
+			return
+		end
+
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch then
+
+			resizing = true
+			resizeStart = input.Position
+			resizeStartSize = MainFrame.Size
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch then
+
+			resizing = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if resizing and (
+			input.UserInputType == Enum.UserInputType.MouseMovement
+			or input.UserInputType == Enum.UserInputType.Touch
+		) then
+
+			local delta = input.Position - resizeStart
+
+			local newWidth = math.clamp(
+				resizeStartSize.X.Offset + delta.X,
+				MIN_WIDTH,
+				MAX_WIDTH
+			)
+
+			local newHeight = math.clamp(
+				resizeStartSize.Y.Offset + delta.Y,
+				MIN_HEIGHT,
+				MAX_HEIGHT
+			)
+
+			MainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
 		end
 	end)
 
@@ -1049,9 +1149,6 @@ function Library:AddTab(name, imageId)
 		return Frame
 	end
 
-	-- ============================================================
-	-- Real HSV Color Picker (hue strip + saturation/value box)
-	-- ============================================================
 	function TabObj:AddColorPicker(text, defaultColor, callback)
 		defaultColor = defaultColor or libraryRef.AccentColor
 
@@ -1083,7 +1180,6 @@ function Library:AddTab(name, imageId)
 		Label.ZIndex = 6
 		Label.Parent = Frame
 
-		-- swatch button in the row (click to expand/collapse)
 		local SwatchButton = Instance.new("TextButton")
 		SwatchButton.Size = UDim2.new(0, 38, 0, 26)
 		SwatchButton.Position = UDim2.new(1, -51, 0, 8)
@@ -1102,7 +1198,6 @@ function Library:AddTab(name, imageId)
 		SwatchStroke.Transparency = 0.4
 		SwatchStroke.Parent = SwatchButton
 
-		-- ===== Expanded picker body =====
 		local Body = Instance.new("Frame")
 		Body.Size = UDim2.new(1, -26, 0, expandedHeight - 42)
 		Body.Position = UDim2.new(0, 13, 0, 42)
@@ -1110,7 +1205,6 @@ function Library:AddTab(name, imageId)
 		Body.ZIndex = 6
 		Body.Parent = Frame
 
-		-- SV box
 		local SVBox = Instance.new("Frame")
 		SVBox.Size = UDim2.new(1, 0, 0, 130)
 		SVBox.Position = UDim2.new(0, 0, 0, 8)
@@ -1179,7 +1273,6 @@ function Library:AddTab(name, imageId)
 		SVCursorStroke.Thickness = 1.5
 		SVCursorStroke.Parent = SVCursor
 
-		-- Hue strip
 		local HueStrip = Instance.new("Frame")
 		HueStrip.Size = UDim2.new(1, 0, 0, 16)
 		HueStrip.Position = UDim2.new(0, 0, 0, 130 + 10)
@@ -1221,7 +1314,6 @@ function Library:AddTab(name, imageId)
 		HueCursorStroke.Thickness = 1
 		HueCursorStroke.Parent = HueCursor
 
-		-- Preview + hex row
 		local PreviewRow = Instance.new("Frame")
 		PreviewRow.Size = UDim2.new(1, 0, 0, 22)
 		PreviewRow.Position = UDim2.new(0, 0, 0, 130 + 10 + 16 + 10)
@@ -1498,4 +1590,3 @@ function Library:AddTab(name, imageId)
 end
 
 return Library
-print("updated")
