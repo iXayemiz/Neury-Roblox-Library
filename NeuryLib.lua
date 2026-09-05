@@ -77,7 +77,7 @@ function Library.new(hubName, accentColor)
 
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
-	MainFrame.Size = UDim2.new(0, 760, 0, 600)
+	MainFrame.Size = UDim2.new(0, 790, 0, 630)
 	MainFrame.Position = UDim2.new(0.5, -380, 0.5, -300)
 	MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
 	MainFrame.BorderSizePixel = 0
