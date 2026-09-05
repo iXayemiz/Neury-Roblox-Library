@@ -1049,12 +1049,22 @@ function Library:AddTab(name, imageId)
 		return Frame
 	end
 
+	-- ============================================================
+	-- Real HSV Color Picker (hue strip + saturation/value box)
+	-- ============================================================
 	function TabObj:AddColorPicker(text, defaultColor, callback)
-		local currentColor = defaultColor or libraryRef.AccentColor
+		defaultColor = defaultColor or libraryRef.AccentColor
+
+		local h, s, v = Color3.toHSV(defaultColor)
+		local pickerOpen = false
+		local pickerHeight = 42
+		local expandedHeight = 42 + 8 + 130 + 10 + 22 + 10
 
 		local Frame = Instance.new("Frame")
-		Frame.Size = UDim2.new(1, -10, 0, 42)
+		Frame.Size = UDim2.new(1, -10, 0, pickerHeight)
 		Frame.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
+		Frame.ClipsDescendants = true
+		Frame.ZIndex = 6
 		Frame.Parent = Page
 
 		local Corner = Instance.new("UICorner")
@@ -1062,7 +1072,7 @@ function Library:AddTab(name, imageId)
 		Corner.Parent = Frame
 
 		local Label = Instance.new("TextLabel")
-		Label.Size = UDim2.new(1, -80, 1, 0)
+		Label.Size = UDim2.new(1, -80, 0, 42)
 		Label.Position = UDim2.new(0, 13, 0, 0)
 		Label.BackgroundTransparency = 1
 		Label.Font = Enum.Font.GothamMedium
@@ -1070,37 +1080,275 @@ function Library:AddTab(name, imageId)
 		Label.TextColor3 = Color3.fromRGB(200, 200, 210)
 		Label.TextSize = 12
 		Label.TextXAlignment = Enum.TextXAlignment.Left
+		Label.ZIndex = 6
 		Label.Parent = Frame
 
-		local ColorButton = Instance.new("TextButton")
-		ColorButton.Size = UDim2.new(0, 38, 0, 26)
-		ColorButton.Position = UDim2.new(1, -51, 0.5, -13)
-		ColorButton.BackgroundColor3 = currentColor
-		ColorButton.AutoButtonColor = false
-		ColorButton.Text = ""
-		ColorButton.Parent = Frame
+		-- swatch button in the row (click to expand/collapse)
+		local SwatchButton = Instance.new("TextButton")
+		SwatchButton.Size = UDim2.new(0, 38, 0, 26)
+		SwatchButton.Position = UDim2.new(1, -51, 0, 8)
+		SwatchButton.BackgroundColor3 = defaultColor
+		SwatchButton.AutoButtonColor = false
+		SwatchButton.Text = ""
+		SwatchButton.ZIndex = 6
+		SwatchButton.Parent = Frame
 
-		local ColorCorner = Instance.new("UICorner")
-		ColorCorner.CornerRadius = UDim.new(0, 6)
-		ColorCorner.Parent = ColorButton
+		local SwatchCorner = Instance.new("UICorner")
+		SwatchCorner.CornerRadius = UDim.new(0, 6)
+		SwatchCorner.Parent = SwatchButton
 
-		local ColorStroke = Instance.new("UIStroke")
-		ColorStroke.Color = Color3.fromRGB(255, 255, 255)
-		ColorStroke.Transparency = 0.4
-		ColorStroke.Parent = ColorButton
+		local SwatchStroke = Instance.new("UIStroke")
+		SwatchStroke.Color = Color3.fromRGB(255, 255, 255)
+		SwatchStroke.Transparency = 0.4
+		SwatchStroke.Parent = SwatchButton
 
-		ColorButton.MouseButton1Click:Connect(function()
-			currentColor = Color3.fromHSV(
-				math.random(),
-				0.8,
-				1
-			)
+		-- ===== Expanded picker body =====
+		local Body = Instance.new("Frame")
+		Body.Size = UDim2.new(1, -26, 0, expandedHeight - 42)
+		Body.Position = UDim2.new(0, 13, 0, 42)
+		Body.BackgroundTransparency = 1
+		Body.ZIndex = 6
+		Body.Parent = Frame
 
-			ColorButton.BackgroundColor3 = currentColor
+		-- SV box
+		local SVBox = Instance.new("Frame")
+		SVBox.Size = UDim2.new(1, 0, 0, 130)
+		SVBox.Position = UDim2.new(0, 0, 0, 8)
+		SVBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+		SVBox.BorderSizePixel = 0
+		SVBox.ClipsDescendants = true
+		SVBox.ZIndex = 6
+		SVBox.Parent = Body
+
+		local SVCorner = Instance.new("UICorner")
+		SVCorner.CornerRadius = UDim.new(0, 6)
+		SVCorner.Parent = SVBox
+
+		local SatGradient = Instance.new("Frame")
+		SatGradient.Size = UDim2.new(1, 0, 1, 0)
+		SatGradient.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		SatGradient.BorderSizePixel = 0
+		SatGradient.ZIndex = 6
+		SatGradient.Parent = SVBox
+
+		local SatUIGradient = Instance.new("UIGradient")
+		SatUIGradient.Color = ColorSequence.new(
+			Color3.fromRGB(255, 255, 255),
+			Color3.fromRGB(255, 255, 255)
+		)
+		SatUIGradient.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		SatUIGradient.Parent = SatGradient
+
+		local ValGradient = Instance.new("Frame")
+		ValGradient.Size = UDim2.new(1, 0, 1, 0)
+		ValGradient.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		ValGradient.BorderSizePixel = 0
+		ValGradient.ZIndex = 6
+		ValGradient.Parent = SVBox
+
+		local ValUIGradient = Instance.new("UIGradient")
+		ValUIGradient.Rotation = 90
+		ValUIGradient.Color = ColorSequence.new(
+			Color3.fromRGB(0, 0, 0),
+			Color3.fromRGB(0, 0, 0)
+		)
+		ValUIGradient.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(1, 0),
+		})
+		ValUIGradient.Parent = ValGradient
+
+		local SVCursor = Instance.new("Frame")
+		SVCursor.Size = UDim2.new(0, 12, 0, 12)
+		SVCursor.AnchorPoint = Vector2.new(0.5, 0.5)
+		SVCursor.Position = UDim2.new(s, 0, 1 - v, 0)
+		SVCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		SVCursor.BorderSizePixel = 0
+		SVCursor.ZIndex = 7
+		SVCursor.Parent = SVBox
+
+		local SVCursorCorner = Instance.new("UICorner")
+		SVCursorCorner.CornerRadius = UDim.new(1, 0)
+		SVCursorCorner.Parent = SVCursor
+
+		local SVCursorStroke = Instance.new("UIStroke")
+		SVCursorStroke.Color = Color3.fromRGB(0, 0, 0)
+		SVCursorStroke.Thickness = 1.5
+		SVCursorStroke.Parent = SVCursor
+
+		-- Hue strip
+		local HueStrip = Instance.new("Frame")
+		HueStrip.Size = UDim2.new(1, 0, 0, 16)
+		HueStrip.Position = UDim2.new(0, 0, 0, 130 + 10)
+		HueStrip.BorderSizePixel = 0
+		HueStrip.ZIndex = 6
+		HueStrip.Parent = Body
+
+		local HueCorner = Instance.new("UICorner")
+		HueCorner.CornerRadius = UDim.new(1, 0)
+		HueCorner.Parent = HueStrip
+
+		local HueGradient = Instance.new("UIGradient")
+		HueGradient.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.000, Color3.fromRGB(255, 0, 0)),
+			ColorSequenceKeypoint.new(0.167, Color3.fromRGB(255, 255, 0)),
+			ColorSequenceKeypoint.new(0.333, Color3.fromRGB(0, 255, 0)),
+			ColorSequenceKeypoint.new(0.500, Color3.fromRGB(0, 255, 255)),
+			ColorSequenceKeypoint.new(0.667, Color3.fromRGB(0, 0, 255)),
+			ColorSequenceKeypoint.new(0.833, Color3.fromRGB(255, 0, 255)),
+			ColorSequenceKeypoint.new(1.000, Color3.fromRGB(255, 0, 0)),
+		})
+		HueGradient.Parent = HueStrip
+
+		local HueCursor = Instance.new("Frame")
+		HueCursor.Size = UDim2.new(0, 6, 1, 4)
+		HueCursor.AnchorPoint = Vector2.new(0.5, 0.5)
+		HueCursor.Position = UDim2.new(h, 0, 0.5, 0)
+		HueCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		HueCursor.BorderSizePixel = 0
+		HueCursor.ZIndex = 7
+		HueCursor.Parent = HueStrip
+
+		local HueCursorCorner = Instance.new("UICorner")
+		HueCursorCorner.CornerRadius = UDim.new(1, 0)
+		HueCursorCorner.Parent = HueCursor
+
+		local HueCursorStroke = Instance.new("UIStroke")
+		HueCursorStroke.Color = Color3.fromRGB(0, 0, 0)
+		HueCursorStroke.Thickness = 1
+		HueCursorStroke.Parent = HueCursor
+
+		-- Preview + hex row
+		local PreviewRow = Instance.new("Frame")
+		PreviewRow.Size = UDim2.new(1, 0, 0, 22)
+		PreviewRow.Position = UDim2.new(0, 0, 0, 130 + 10 + 16 + 10)
+		PreviewRow.BackgroundTransparency = 1
+		PreviewRow.ZIndex = 6
+		PreviewRow.Parent = Body
+
+		local PreviewSwatch = Instance.new("Frame")
+		PreviewSwatch.Size = UDim2.new(0, 22, 0, 22)
+		PreviewSwatch.BackgroundColor3 = defaultColor
+		PreviewSwatch.BorderSizePixel = 0
+		PreviewSwatch.ZIndex = 6
+		PreviewSwatch.Parent = PreviewRow
+
+		local PreviewCorner = Instance.new("UICorner")
+		PreviewCorner.CornerRadius = UDim.new(0, 5)
+		PreviewCorner.Parent = PreviewSwatch
+
+		local HexLabel = Instance.new("TextLabel")
+		HexLabel.Size = UDim2.new(1, -32, 1, 0)
+		HexLabel.Position = UDim2.new(0, 30, 0, 0)
+		HexLabel.BackgroundTransparency = 1
+		HexLabel.Font = Enum.Font.GothamMedium
+		HexLabel.Text = "#" .. defaultColor:ToHex():upper()
+		HexLabel.TextColor3 = Color3.fromRGB(150, 150, 160)
+		HexLabel.TextSize = 11
+		HexLabel.TextXAlignment = Enum.TextXAlignment.Left
+		HexLabel.ZIndex = 6
+		HexLabel.Parent = PreviewRow
+
+		local currentColor = defaultColor
+
+		local function applyColor()
+			currentColor = Color3.fromHSV(h, s, v)
+
+			SVBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+			SwatchButton.BackgroundColor3 = currentColor
+			PreviewSwatch.BackgroundColor3 = currentColor
+			HexLabel.Text = "#" .. currentColor:ToHex():upper()
 
 			if callback then
 				callback(currentColor)
 			end
+		end
+
+		local function setSV(input)
+			local relX = math.clamp(
+				(input.Position.X - SVBox.AbsolutePosition.X) / SVBox.AbsoluteSize.X,
+				0,
+				1
+			)
+			local relY = math.clamp(
+				(input.Position.Y - SVBox.AbsolutePosition.Y) / SVBox.AbsoluteSize.Y,
+				0,
+				1
+			)
+
+			s = relX
+			v = 1 - relY
+
+			SVCursor.Position = UDim2.new(s, 0, 1 - v, 0)
+			applyColor()
+		end
+
+		local function setHue(input)
+			local relX = math.clamp(
+				(input.Position.X - HueStrip.AbsolutePosition.X) / HueStrip.AbsoluteSize.X,
+				0,
+				1
+			)
+
+			h = relX
+			HueCursor.Position = UDim2.new(h, 0, 0.5, 0)
+			applyColor()
+		end
+
+		local draggingSV = false
+		local draggingHue = false
+
+		SVBox.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1
+				or input.UserInputType == Enum.UserInputType.Touch then
+				draggingSV = true
+				setSV(input)
+			end
+		end)
+
+		HueStrip.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1
+				or input.UserInputType == Enum.UserInputType.Touch then
+				draggingHue = true
+				setHue(input)
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement
+				or input.UserInputType == Enum.UserInputType.Touch then
+
+				if draggingSV then
+					setSV(input)
+				elseif draggingHue then
+					setHue(input)
+				end
+			end
+		end)
+
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1
+				or input.UserInputType == Enum.UserInputType.Touch then
+				draggingSV = false
+				draggingHue = false
+			end
+		end)
+
+		SwatchButton.MouseButton1Click:Connect(function()
+			pickerOpen = not pickerOpen
+
+			local targetSize = pickerOpen
+				and UDim2.new(1, -10, 0, expandedHeight)
+				or UDim2.new(1, -10, 0, pickerHeight)
+
+			TweenService:Create(
+				Frame,
+				TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				{Size = targetSize}
+			):Play()
 		end)
 
 		return Frame
