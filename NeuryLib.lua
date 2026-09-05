@@ -64,8 +64,8 @@ function Library.new(hubName, accentColor)
 
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
-	MainFrame.Size = UDim2.new(0, 650, 0, 510)
-	MainFrame.Position = UDim2.new(0.5, -325, 0.5, -255)
+	MainFrame.Size = UDim2.new(0, 760, 0, 600)
+	MainFrame.Position = UDim2.new(0.5, -380, 0.5, -300)
 	MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
 	MainFrame.BorderSizePixel = 0
 	MainFrame.ClipsDescendants = false
@@ -272,8 +272,8 @@ function Library.new(hubName, accentColor)
 		self.IsMinimized = minimized
 
 		local targetSize = minimized
-			and UDim2.new(0, 650, 0, 54)
-			or UDim2.new(0, 650, 0, 510)
+			and UDim2.new(0, 760, 0, 54)
+			or UDim2.new(0, 760, 0, 600)
 
 		PagesContainer.Visible = not minimized
 		Sidebar.Visible = not minimized
@@ -1498,3 +1498,4 @@ function Library:AddTab(name, imageId)
 end
 
 return Library
+print("updated")
