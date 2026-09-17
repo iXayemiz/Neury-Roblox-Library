@@ -79,6 +79,25 @@ ShowcaseTab:AddDropdown(
 
 ShowcaseTab:AddDivider()
 
+ShowcaseTab:AddSectionHeader("MULTI-SELECT DROPDOWN")
+
+ShowcaseTab:AddMultiDropdown(
+	"Enabled Modules",
+	{
+		"ESP",
+		"Aimbot",
+		"Speed Boost"
+	},
+	{
+		"ESP"
+	},
+	function(selected)
+		print("Selected modules:", table.concat(selected, ", "))
+	end
+)
+
+ShowcaseTab:AddDivider()
+
 ShowcaseTab:AddSectionHeader("KEYBIND")
 
 ShowcaseTab:AddKeybind(
@@ -103,6 +122,44 @@ ShowcaseTab:AddColorPicker(
 
 ShowcaseTab:AddDivider()
 
+ShowcaseTab:AddSectionHeader("PROGRESS BAR")
+
+local XPBar = ShowcaseTab:AddProgressBar(
+	"XP Progress",
+	0,
+	100,
+	0
+)
+
+XPBar:Set(65)
+
+ShowcaseTab:AddDivider()
+
+ShowcaseTab:AddSectionHeader("IMAGE")
+
+ShowcaseTab:AddImage(123456789, 140)
+
+ShowcaseTab:AddDivider()
+
+ShowcaseTab:AddSectionHeader("BUTTON GROUP")
+
+ShowcaseTab:AddButtonGroup({
+	{
+		Text = "Enable All",
+		Callback = function()
+			print("Enabled all")
+		end,
+	},
+	{
+		Text = "Disable All",
+		Callback = function()
+			print("Disabled all")
+		end,
+	},
+})
+
+ShowcaseTab:AddDivider()
+
 ShowcaseTab:AddSectionHeader("TEXTBOX + TOGGLE COMBO")
 
 ShowcaseTab:AddTextboxToggle({
@@ -122,3 +179,9 @@ ShowcaseTab:AddTextboxToggle({
 		print("Webhook enabled:", state)
 	end,
 })
+
+NeuryWindow:Notify(
+	"Ready",
+	"The showcase tab has finished loading.",
+	3.5
+)
