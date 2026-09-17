@@ -410,6 +410,198 @@ Available options:
 
 ---
 
+# Progress Bars
+
+```lua
+local SpeedBar = ShowcaseTab:AddProgressBar(
+	"Loading Speed",
+	0,
+	100,
+	40
+)
+```
+
+Arguments:
+
+```text
+Name
+Minimum value
+Maximum value
+Default value
+```
+
+This is a read-only bar, so it has no callback. Instead, it returns an object with a `:Set()` method you can call whenever you want to update its value.
+
+Example:
+
+```lua
+local XPBar = ShowcaseTab:AddProgressBar(
+	"XP Progress",
+	0,
+	100,
+	0
+)
+
+XPBar:Set(65)
+```
+
+---
+
+# Images
+
+```lua
+ShowcaseTab:AddImage(
+	"rbxassetid://123456789",
+	140
+)
+```
+
+The first argument is the image (accepts either a raw asset ID number or a full image string).
+
+The second argument is the height of the image frame in pixels (optional, defaults to `140`).
+
+Example:
+
+```lua
+ShowcaseTab:AddImage(123456789, 180)
+```
+
+---
+
+# Multi-Select Dropdowns
+
+```lua
+ShowcaseTab:AddMultiDropdown(
+	"Enabled Modules",
+	{
+		"ESP",
+		"Aimbot",
+		"Speed Boost"
+	},
+	{
+		"ESP"
+	},
+	function(selected)
+		print("Selected modules:", table.concat(selected, ", "))
+	end
+)
+```
+
+Arguments:
+
+```text
+Name
+Options
+Default selected options (table)
+Callback
+```
+
+Unlike a normal dropdown, more than one option can be checked at once. The callback receives a table containing every currently selected option, in the order they appear in the `options` list.
+
+Example:
+
+```lua
+ShowcaseTab:AddMultiDropdown(
+	"Visible Players",
+	{
+		"Team A",
+		"Team B",
+		"Spectators"
+	},
+	{
+		"Team A",
+		"Team B"
+	},
+	function(selected)
+		for _, option in ipairs(selected) do
+			print("Showing:", option)
+		end
+	end
+)
+```
+
+---
+
+# Button Groups
+
+```lua
+ShowcaseTab:AddButtonGroup({
+	{
+		Text = "Enable All",
+		Callback = function()
+			print("Enabled all")
+		end,
+	},
+	{
+		Text = "Disable All",
+		Callback = function()
+			print("Disabled all")
+		end,
+	},
+})
+```
+
+Takes a single table of button definitions, each with `Text` and `Callback`, and lays them out as equal-width buttons in one row.
+
+Example with three buttons:
+
+```lua
+ShowcaseTab:AddButtonGroup({
+	{
+		Text = "Low",
+		Callback = function()
+			print("Low selected")
+		end,
+	},
+	{
+		Text = "Medium",
+		Callback = function()
+			print("Medium selected")
+		end,
+	},
+	{
+		Text = "High",
+		Callback = function()
+			print("High selected")
+		end,
+	},
+})
+```
+
+---
+
+# Notifications
+
+```lua
+NeuryWindow:Notify(
+	"Saved",
+	"Your settings have been saved successfully.",
+	3.5
+)
+```
+
+Arguments:
+
+```text
+Title
+Text
+Duration (seconds, optional, defaults to 3.5)
+```
+
+Unlike the other controls, this is called on the **window** rather than a tab, since notifications aren't tied to any single page.
+
+Example:
+
+```lua
+NeuryWindow:Notify(
+	"Warning",
+	"Webhook URL is invalid.",
+	5
+)
+```
+
+---
+
 # Complete Example
 
 ```lua
@@ -496,6 +688,25 @@ ShowcaseTab:AddDropdown(
 
 ShowcaseTab:AddDivider()
 
+ShowcaseTab:AddSectionHeader("MULTI-SELECT DROPDOWN")
+
+ShowcaseTab:AddMultiDropdown(
+	"Enabled Modules",
+	{
+		"ESP",
+		"Aimbot",
+		"Speed Boost"
+	},
+	{
+		"ESP"
+	},
+	function(selected)
+		print("Selected modules:", table.concat(selected, ", "))
+	end
+)
+
+ShowcaseTab:AddDivider()
+
 ShowcaseTab:AddSectionHeader("KEYBIND")
 
 ShowcaseTab:AddKeybind(
@@ -520,6 +731,44 @@ ShowcaseTab:AddColorPicker(
 
 ShowcaseTab:AddDivider()
 
+ShowcaseTab:AddSectionHeader("PROGRESS BAR")
+
+local XPBar = ShowcaseTab:AddProgressBar(
+	"XP Progress",
+	0,
+	100,
+	0
+)
+
+XPBar:Set(65)
+
+ShowcaseTab:AddDivider()
+
+ShowcaseTab:AddSectionHeader("IMAGE")
+
+ShowcaseTab:AddImage(123456789, 140)
+
+ShowcaseTab:AddDivider()
+
+ShowcaseTab:AddSectionHeader("BUTTON GROUP")
+
+ShowcaseTab:AddButtonGroup({
+	{
+		Text = "Enable All",
+		Callback = function()
+			print("Enabled all")
+		end,
+	},
+	{
+		Text = "Disable All",
+		Callback = function()
+			print("Disabled all")
+		end,
+	},
+})
+
+ShowcaseTab:AddDivider()
+
 ShowcaseTab:AddSectionHeader("TEXTBOX + TOGGLE COMBO")
 
 ShowcaseTab:AddTextboxToggle({
@@ -539,6 +788,12 @@ ShowcaseTab:AddTextboxToggle({
 		print("Webhook enabled:", state)
 	end,
 })
+
+NeuryWindow:Notify(
+	"Ready",
+	"The showcase tab has finished loading.",
+	3.5
+)
 ```
 
 ---
@@ -549,6 +804,7 @@ The current Neury UI Library API includes:
 
 * `NeuryUI.new()`
 * `Window:AddTab()`
+* `Window:Notify()`
 * `Tab:AddSectionHeader()`
 * `Tab:AddLabel()`
 * `Tab:AddParagraph()`
@@ -561,3 +817,7 @@ The current Neury UI Library API includes:
 * `Tab:AddKeybind()`
 * `Tab:AddColorPicker()`
 * `Tab:AddTextboxToggle()`
+* `Tab:AddProgressBar()`
+* `Tab:AddImage()`
+* `Tab:AddMultiDropdown()`
+* `Tab:AddButtonGroup()`
