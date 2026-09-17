@@ -469,9 +469,6 @@ function Library.new(hubName, accentColor)
 	return self
 end
 
--- ============================================================
--- NEW: Toast notification system (Library-level, not tied to a tab)
--- ============================================================
 function Library:Notify(title, text, duration)
 	duration = duration or 3.5
 
@@ -1238,9 +1235,6 @@ function Library:AddTab(name, imageId)
 		return Frame
 	end
 
-	-- ============================================================
-	-- Real HSV Color Picker (hue strip + saturation/value box)
-	-- ============================================================
 	function TabObj:AddColorPicker(text, defaultColor, callback)
 		defaultColor = defaultColor or libraryRef.AccentColor
 
@@ -1291,7 +1285,6 @@ function Library:AddTab(name, imageId)
 		SwatchStroke.Transparency = 0.4
 		SwatchStroke.Parent = SwatchButton
 
-		-- ===== Expanded picker body =====
 		local Body = Instance.new("Frame")
 		Body.Size = UDim2.new(1, -26, 0, expandedHeight - 42)
 		Body.Position = UDim2.new(0, 13, 0, 42)
@@ -1299,7 +1292,6 @@ function Library:AddTab(name, imageId)
 		Body.ZIndex = 6
 		Body.Parent = Frame
 
-		-- SV box
 		local SVBox = Instance.new("Frame")
 		SVBox.Size = UDim2.new(1, 0, 0, 130)
 		SVBox.Position = UDim2.new(0, 0, 0, 8)
@@ -1368,7 +1360,6 @@ function Library:AddTab(name, imageId)
 		SVCursorStroke.Thickness = 1.5
 		SVCursorStroke.Parent = SVCursor
 
-		-- Hue strip
 		local HueStrip = Instance.new("Frame")
 		HueStrip.Size = UDim2.new(1, 0, 0, 16)
 		HueStrip.Position = UDim2.new(0, 0, 0, 130 + 10)
@@ -1410,7 +1401,6 @@ function Library:AddTab(name, imageId)
 		HueCursorStroke.Thickness = 1
 		HueCursorStroke.Parent = HueCursor
 
-		-- Preview + hex row
 		local PreviewRow = Instance.new("Frame")
 		PreviewRow.Size = UDim2.new(1, 0, 0, 22)
 		PreviewRow.Position = UDim2.new(0, 0, 0, 130 + 10 + 16 + 10)
@@ -1683,9 +1673,6 @@ function Library:AddTab(name, imageId)
 		return MainCompFrame
 	end
 
-	-- ============================================================
-	-- NEW: Progress bar (read-only display, updated via :Set(value))
-	-- ============================================================
 	function TabObj:AddProgressBar(text, min, max, default)
 		min = min or 0
 		max = max or 100
@@ -1763,9 +1750,6 @@ function Library:AddTab(name, imageId)
 		return ProgressObj
 	end
 
-	-- ============================================================
-	-- NEW: Image display (banners, logos, previews)
-	-- ============================================================
 	function TabObj:AddImage(imageId, height)
 		height = height or 140
 
@@ -1790,10 +1774,7 @@ function Library:AddTab(name, imageId)
 
 		return Frame
 	end
-
-	-- ============================================================
-	-- NEW: Multi-select dropdown (checkbox list, returns array on change)
-	-- ============================================================
+	
 	function TabObj:AddMultiDropdown(text, options, defaultOptions, callback)
 		local DropdownOpen = false
 		local selected = {}
@@ -1954,9 +1935,6 @@ function Library:AddTab(name, imageId)
 		return DropdownFrame
 	end
 
-	-- ============================================================
-	-- NEW: Button group (row of 2-4 equal-width buttons)
-	-- ============================================================
 	function TabObj:AddButtonGroup(buttons)
 		local count = #buttons
 
